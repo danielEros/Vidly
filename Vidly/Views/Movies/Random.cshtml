@@ -1,0 +1,16 @@
+﻿@model Vidly.ViewModels.RandomMovieViewModel
+
+@{
+    ViewBag.Title = "Random";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h4>Movie title: @Model.Movie.Name</h4>
+
+<h5>Customers:</h5>
+<ul>
+    @foreach (var item in Model.Customers)
+    {
+        <li>@item.Name</li>
+    }
+</ul>

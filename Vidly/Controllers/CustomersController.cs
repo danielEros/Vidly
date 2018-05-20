@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Data.Entity;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
@@ -10,26 +11,49 @@ namespace Vidly.Controllers
 {
     public class CustomersController : Controller
     {
+        // we use this in this way by convention:
+        private ApplicationDbContext _context;
+
+        public CustomersController()
+        {
+            _context = new ApplicationDbContext();
+        }
+
+        // to properly dispose _context:
+        protected override void Dispose(bool disposing)
+        {
+            _context.Dispose();
+        }
+
         public ActionResult Index()
         {
-           List<Customer> customerList = new List<Customer>
-            {
-                //new Customer {Id=1, Name = "Dani"},
-                //new Customer {Id=2, Name = "Lili"}
-            };
-
+            var customerList = _context.Customers.Include(x => x.MembershipType).ToList();
             CustomerViewModel cvm = new CustomerViewModel {Customers = customerList};
             return View(cvm);
         }
 
-        [Route("Customers/Details/{id:range(1,2)}")]
+        [Route("Customers/Details/{id}")]
         public ActionResult Details(int id)
         {
-            string Name_ = "";
-            if (id == 1) Name_ = "Dani";
-            else if (id == 2) Name_ = "Lili";
-            CustomerDetailViewModel cdvm = new CustomerDetailViewModel{Name=Name_};
+            // with eager loading we can access the attached tables
+            // to do this, use Include(x => x.Membershiptype) in this case
+            // and have to manually import "using System.Data.Entity;"
+            var customer = _context.Customers.Include(x => x.MembershipType).SingleOrDefault(x => x.Id == id);
+            if (customer == null)
+            {
+                return HttpNotFound();
+            }
 
+            // this shoulb be done in a more sopisticated manner
+            //var membershipType = _context.MembershipTypes.SingleOrDefault(x => x.Id == customer.MembershipTypeId);
+            
+
+            CustomerDetailViewModel cdvm = new CustomerDetailViewModel
+            {
+                Name = customer.Name,
+                MembershipTypeName = customer.MembershipType.Name,
+                Birthday = customer.Birthday
+            };
             return View(cdvm);
         }
     }

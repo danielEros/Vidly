@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Data.Entity;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
@@ -11,6 +12,19 @@ namespace Vidly.Controllers
 {
     public class MoviesController : Controller
     {
+
+        private ApplicationDbContext _context;
+
+        public MoviesController()
+        {
+            _context = new ApplicationDbContext();
+        }
+
+        // to properly dispose _context:
+        protected override void Dispose(bool disposing)
+        {
+            _context.Dispose();
+        }
         // GET: Movies/Random
         public ActionResult Random()
         {
@@ -63,17 +77,40 @@ namespace Vidly.Controllers
         public ActionResult Index()
         {
             //Movie movies = new Movie { Name = "Shrek!" };
-            List<Movie> movieList = new List<Movie>
-            {
-                new Movie {Id=1, Name = "Shreck"},
-                new Movie {Id=2, Name = "Gyalog galopp"}
-            };
+            //List<Movie> movieList = new List<Movie>
+            //{
+            //    new Movie {Id=1, Name = "Shreck"},
+            //    new Movie {Id=2, Name = "Gyalog galopp"}
+            //};
+
+            List<Movie> movieList = _context.Movies.Include(x => x.Genre).ToList();
 
             var mvm = new MovieViewModel { Movies = movieList };
             return View(mvm);
             //return HttpNotFound();
             //return new EmptyResult();
             //return RedirectToAction("Index", "Home", new {page = 1, sortBy = "name"});
+        }
+
+        [Route("Movies/Details/{id}")]
+        public ActionResult Details(int id)
+        {
+            var movie = _context.Movies.Include(x => x.Genre).SingleOrDefault(x => x.Id == id);
+            if (movie == null)
+            {
+                return HttpNotFound();
+            }
+
+            MovieDetailViewModel cdvm = new MovieDetailViewModel
+            {
+                Id = movie.Id,
+                Name = movie.Name,
+                GenreName = movie.Genre.GenreName,
+                ReleaseDate = movie.ReleaseDate,
+                AddedDate = movie.AddedDate,
+                NumberInStock = movie.NumberInStock
+            };
+            return View(cdvm);
         }
     }
 }

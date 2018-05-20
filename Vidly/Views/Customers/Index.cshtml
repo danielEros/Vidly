@@ -12,6 +12,7 @@
     <table class="table table-bordered table-hover">
         <tr>
             <th>Customer</th>
+            <th>Membership Type</th>
         </tr>
         <tbody>
     
@@ -19,10 +20,11 @@
         {
             <tr>
                 @*<td>@item.Name</td>
-                The last null parameter is needed for proper working......: *@
+        The last null parameter is needed for proper working......: *@
                 <td>
                     @Html.ActionLink(item.Name, "Details", "Customers", new { id = item.Id }, null)
                 </td>
+                <td>@item.MembershipType.Name</td>
             </tr>
         }
 

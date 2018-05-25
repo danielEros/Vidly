@@ -7,12 +7,18 @@
 
 <h2>Movies</h2>
 
+<div class="form-group">
+    @Html.ActionLink("New Movie", "New", "Movies", null, new {@class = "btn btn-primary"})
+</div>
+
+
 @if (Model.Movies.Count > 0)
 {
     <table class="table table-bordered table-hover">
         <tr>
             <th>Movie</th>
             <th>Genre</th>
+            <th>Action</th>
         </tr>
         <tbody>
 
@@ -25,6 +31,9 @@
                     @Html.ActionLink(item.Name, "Details", "Movies", new { id = item.Id }, null)
                 </td>
                 <td>@item.Genre.GenreName</td>
+                <td>
+                    @Html.ActionLink("Edit", "Edit", "Movies", new { id = item.Id }, null)
+                </td>
             </tr>
         }
 

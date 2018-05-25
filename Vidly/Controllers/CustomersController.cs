@@ -32,6 +32,50 @@ namespace Vidly.Controllers
             return View(cvm);
         }
 
+        public ActionResult New()
+        {
+            List<MembershipType> membershipTypeList = _context.MembershipTypes.ToList();
+            Customer customer = new Customer();
+            customer.Id = 0;
+            CustomerFormViewModel ncvm = new CustomerFormViewModel();
+            ncvm.Customer = customer;
+            ncvm.MembershipTypes = membershipTypeList;
+            return View("CustomerForm", ncvm);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult Save(CustomerFormViewModel ncvm)
+        {
+            if (!ModelState.IsValid)
+            {
+                List<MembershipType> membershipTypes = _context.MembershipTypes.ToList();
+                ncvm.MembershipTypes = membershipTypes;
+                return View("CustomerForm", ncvm);
+            }
+            if (ncvm.Customer.Id == 0)
+            {
+                _context.Customers.Add(ncvm.Customer);
+            }
+            else
+            {
+                Customer customerInDb = _context.Customers.Single(x => x.Id == ncvm.Customer.Id);
+
+                // Automapperrel lehetne így:
+                // Mapper.Map(ncvm.Customer, customerInDb);
+                // de ekkor MINDEN mezőt felülírna, meg lehet oldani ezt is, de most nem fogl.
+
+                customerInDb.Name = ncvm.Customer.Name;
+                customerInDb.Birthday = ncvm.Customer.Birthday;
+                customerInDb.MembershipTypeId = ncvm.Customer.MembershipTypeId;
+                customerInDb.IsSubsrcibedToNewsletter = ncvm.Customer.IsSubsrcibedToNewsletter;
+            }
+
+            _context.SaveChanges();
+            return RedirectToAction("Index", "Customers");
+        }
+
+
         [Route("Customers/Details/{id}")]
         public ActionResult Details(int id)
         {
@@ -55,6 +99,20 @@ namespace Vidly.Controllers
                 Birthday = customer.Birthday
             };
             return View(cdvm);
+        }
+
+        public ActionResult Edit(int id)
+        {
+            var cusromer = _context.Customers.Include(x => x.MembershipType).SingleOrDefault(x => x.Id == id);
+            if (cusromer == null)
+            {
+                return HttpNotFound();
+            }
+            CustomerFormViewModel ncvm = new CustomerFormViewModel
+            {
+                Customer = cusromer, MembershipTypes = _context.MembershipTypes.ToList()
+            };
+            return View("CustomerForm", ncvm);
         }
     }
 }

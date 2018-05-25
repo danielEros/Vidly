@@ -3,10 +3,11 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Web;
+using Vidly.Models;
 
-namespace Vidly.Models
+namespace Vidly.Dtos
 {
-    public class Customer
+    public class CustomerDto
     {
         public int Id { get; set; }
 
@@ -16,16 +17,17 @@ namespace Vidly.Models
 
         public bool IsSubsrcibedToNewsletter { get; set; }
 
-        
+
+        /*
+         This is not needed here, can be deleted, as well as the display attributes of other members
         [Display(Name = "Membership type")]
         // a navigation property: it allows us to navigate from one type to another
         public MembershipType MembershipType { get; set; }
+        */
 
-        [Display(Name = "Membership type")]
         // Entity framework will recognize this as a FK: !!!!!!!!!!! by its naming based on E.F.'s naming convenction rules
         public byte MembershipTypeId { get; set; }
 
-        [Display(Name = "Date of birth")]
         [Min18YearsIfAMember]
         public DateTime? Birthday { get; set; }
     }

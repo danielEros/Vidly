@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Web;
+using Microsoft.Ajax.Utilities;
 
 namespace Vidly.Models
 {
@@ -13,8 +14,14 @@ namespace Vidly.Models
         public byte DurationInMonths { get; set; }
         public byte DiscountRate { get; set; }
 
-        [Required]
+        [Required(ErrorMessage = "Membership type is required")]
         [StringLength(10)]
         public string Name { get; set; }
+
+        public static readonly byte Unknown = 0;
+        public static readonly byte PayAsYouGo = 1;
+        public static readonly byte Monthly = 2;
+        public static readonly byte Quarterly = 3;
+        public static readonly byte Yearly = 4;
     }
 }

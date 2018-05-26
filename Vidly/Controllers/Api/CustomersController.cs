@@ -5,6 +5,8 @@ using System.Net;
 using System.Net.Http;
 using System.Web;
 using System.Web.Http;
+using AutoMapper;
+using Vidly.Dtos;
 using Vidly.Models;
 
 namespace Vidly.Controllers.Api
@@ -24,61 +26,77 @@ namespace Vidly.Controllers.Api
         }
 
         // GET /api/customers
-        public IEnumerable<Customer> GetCustomers()
+        public IHttpActionResult GetCustomers()
         {
-            return _context.Customers.ToList();
+            // the Linq extension method to use the automaper:
+            // .Select(Mapper.Map<_inputType_, _outputtype_>)
+            return Ok(_context.Customers.ToList().Select(Mapper.Map<Customer, CustomerDto>));
         }
 
         // GET /api/customers/1
-        public Customer GetCustomer(int id)
+        public IHttpActionResult GetCustomer(int id)
         {
             Customer customer = _context.Customers.SingleOrDefault(x => x.Id == id);
-            if(customer == null) throw new HttpResponseException(HttpStatusCode.NotFound);
-            return customer;
+            if (customer == null) return NotFound();//throw new HttpResponseException(HttpStatusCode.NotFound);
+            //return Mapper.Map <Customer, CustomerDto> (customer);
+            return Ok(Mapper.Map<Customer, CustomerDto>(customer));
         }
 
         // POST /api/customers
         // = add a new customer
         // by convention we return the newly generated item, maybe for the id
         [HttpPost]
-        public Customer CreateCustomer(Customer customer)
+        //public CustomerDto CreateCustomer(CustomerDto customerDto)
+        public IHttpActionResult CreateCustomer(CustomerDto customerDto)
         {
             if (!ModelState.IsValid)
             {
-                throw new HttpResponseException(HttpStatusCode.BadRequest);
+                //throw new HttpResponseException(HttpStatusCode.BadRequest);
+                return BadRequest();
             }
+
+            Customer customer = Mapper.Map<CustomerDto, Customer>(customerDto);
             _context.Customers.Add(customer);
             _context.SaveChanges();
-            return customer;
+            customerDto.Id = customer.Id;
+            //return customerDto;
+            return Created(new Uri(Request.RequestUri + "/" + customer.Id), customerDto);
         }
 
         // PUT /api/customers/1
         // = edit a customer
         [HttpPut]
-        public void UpdateCustomer(int id, Customer customer)
+        public IHttpActionResult UpdateCustomer(int id, CustomerDto customerDto)
         {
             if (!ModelState.IsValid)
             {
-                throw new HttpResponseException(HttpStatusCode.BadRequest);
+                return BadRequest();
             }
 
             var customerInDb = _context.Customers.SingleOrDefault(x => x.Id == id);
-            if(customerInDb == null) throw new HttpResponseException(HttpStatusCode.NotFound);
+            if (customerInDb == null) return NotFound(); //throw new HttpResponseException(HttpStatusCode.NotFound);
 
-            customerInDb.Name = customer.Name;
-            customerInDb.Birthday = customer.Birthday;
-            customerInDb.IsSubsrcibedToNewsletter = customer.IsSubsrcibedToNewsletter;
-            customerInDb.MembershipTypeId = customer.MembershipTypeId;
+            // !!
+            Mapper.Map(customerDto, customerInDb);
+
+            // with the mapper we dont need these lines:
+            //customerInDb.Name = customer.Name;
+            //customerInDb.Birthday = customer.Birthday;
+            //customerInDb.IsSubsrcibedToNewsletter = customer.IsSubsrcibedToNewsletter;
+            //customerInDb.MembershipTypeId = customer.MembershipTypeId;
             _context.SaveChanges();
+            return Ok();
         }
+
         // DELETE /api/customers/1
         [HttpDelete]
-        public void DeleteCustomer(int id)
+        public IHttpActionResult DeleteCustomer(int id)
         {
             Customer customer = _context.Customers.SingleOrDefault(x => x.Id == id);
-            if (customer == null) throw new HttpResponseException(HttpStatusCode.NotFound);
+            if (customer == null) return NotFound(); //throw new HttpResponseException(HttpStatusCode.NotFound);
             _context.Customers.Remove(customer);
             _context.SaveChanges();
+            return Ok();
         }
     }
 }

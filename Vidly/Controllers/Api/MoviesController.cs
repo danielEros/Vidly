@@ -79,7 +79,7 @@ namespace Vidly.Controllers.Api
             if (movie == null) return NotFound(); //throw new HttpResponseException(HttpStatusCode.NotFound);
             _context.Movies.Remove(movie);
             _context.SaveChanges();
-            return Ok();
+            return Ok("deleted");
         }
     }
 }

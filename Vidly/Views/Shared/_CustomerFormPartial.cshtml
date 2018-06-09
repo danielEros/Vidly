@@ -1,0 +1,90 @@
+﻿@model Vidly.ViewModels.CustomerFormViewModel
+
+@{
+
+    ViewBag.Title = "New";
+}
+
+@if(Model.Customer.Id == 0)
+{ <h2>New Customer</h2> }
+else
+{
+    <h2>Edit Customer</h2>
+}
+
+<script>
+    $("#saveBtn").click(function(e) {
+        e.preventDefault();
+        var obj = {
+
+            name: $("#name").val(),
+            membershipTypeId: $("#mtid").val(),
+            birthday: $("#bd").val(),
+            isSubsrcibedToNewsletter: $("#nl").val()
+        }
+
+        var data_ = JSON.stringify(obj);
+        console.log(data_);
+        $.ajax({
+            url: "/api/customers/" + $("#hiddenId").val(),
+            data: data_,
+            contentType: "application/json",
+            type: "PUT",
+            error: function(e) {
+                //debugger;
+                alert("Wrong data: " + e.statusText);
+            },
+            success: function() {
+                $.ajax({
+                    url: "/customers/DetailsToDiv/" + $("#hiddenId").val(),
+                    success: function (resp) {
+                        //console.log(resp);
+                        $("#partialholder").html(resp);
+                    }
+
+                });
+                //$("#partialholder").
+            }
+        });
+
+    });
+</script>
+@Html.ValidationSummary(true, "Please fix the below errors")
+
+@using (Html.BeginForm("SavePartial", "Customers", FormMethod.Post))
+{
+    <div class="form-group">
+        @Html.LabelFor(x => x.Customer.Name)
+        @Html.TextBoxFor(x => x.Customer.Name, new { @class = "form-control", id = "name" })
+        @Html.ValidationMessageFor(x => x.Customer.Name, "")
+    </div>
+    
+    <div class="form-group">
+        @Html.LabelFor(x => x.Customer.MembershipTypeId)
+        @Html.DropDownListFor(x => x.Customer.MembershipTypeId, new SelectList(Model.MembershipTypes, "Id", "Name"), "", new { @class = "form-control", id = "mtid" })
+        @Html.ValidationMessageFor(x => x.Customer.MembershipTypeId, "")
+    </div>
+
+    <div class="form-group">
+        @Html.LabelFor(x => x.Customer.Birthday)
+        @Html.TextBoxFor(x => x.Customer.Birthday, "{0:d MMM yyyy}", new { @class = "form-control", id = "bd" })
+        @Html.ValidationMessageFor(x => x.Customer.Birthday, "")
+    </div>
+
+    <div class="checkbox">
+        <label>
+            @Html.CheckBoxFor(x => x.Customer.IsSubsrcibedToNewsletter, new{ id = "nl" }) Subscribed for newsletter?
+        </label>
+    </div>
+    
+    @Html.HiddenFor(x => x.Customer.Id)
+    @Html.AntiForgeryToken()
+    <button class="btn btn-primary" id="saveBtn">Save</button>
+}
+
+@*// to enable client side validation on this page*@
+
+@section scripts
+{
+    @Scripts.Render("~/bundles/jqueryval")
+}

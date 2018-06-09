@@ -1,0 +1,44 @@
+﻿@model Vidly.ViewModels.CustomerDetailViewModel
+
+@{
+    ViewBag.Title = "Details";
+    /*Layout = "~/Views/Shared/_Layout.cshtml"*/
+    ;
+}
+
+<script>
+    //$(document).ready(function () {
+    $(".editClick").click(function () {
+        var id = $("#hiddenId").val();
+        //console.log(id);
+
+        var url = "/customers/EditToDiv/" + id;
+        //$("#partialholder").load(url);
+        $.ajax({
+            url: url,
+            success: function(resp) {
+                //console.log(resp);
+                $("#partialholder").html(resp);
+            }
+
+        });
+
+    });
+    //});
+</script>
+<h2>Name: @Model.Name</h2>
+
+<button class="btn btn-primary editClick" data-to-js="@Model.Id">Edit</button>
+
+<ul>
+    <li>Memebership Type: @Model.MembershipTypeName</li>
+    @if (Model.Birthday != null)
+    {
+        <li>Birthday: @Model.Birthday.Value.ToShortDateString()</li>
+    }
+</ul>
+
+@section scripts
+{
+    
+}

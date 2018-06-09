@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Data.Entity;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
@@ -28,7 +29,11 @@ namespace Vidly.Controllers.Api
         // GET /api/movies
         public IHttpActionResult GetMovies()
         {
-            return Ok(_context.Movies.ToList().Select(Mapper.Map<Movie, MovieDto>));
+            var customerDtos = _context.Movies
+                .Include(x => x.Genre)
+                .ToList()
+                .Select(Mapper.Map<Movie, MovieDto>);
+            return Ok(customerDtos);
         }
 
         // GET /api/movies/1
@@ -51,7 +56,8 @@ namespace Vidly.Controllers.Api
             _context.SaveChanges();
             movieDto.Id = movie.Id;
             movieDto.AddedDate = movie.AddedDate;
-            return Created(new Uri(Request.RequestUri + "/" + movie.Id), movieDto);
+            //return Created(new Uri(Request.RequestUri + "/" + movie.Id), movieDto);
+            return Ok();
         }
 
         // PUT /api/movies/1

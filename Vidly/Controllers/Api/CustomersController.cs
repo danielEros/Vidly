@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data.Entity;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -30,7 +31,11 @@ namespace Vidly.Controllers.Api
         {
             // the Linq extension method to use the automaper:
             // .Select(Mapper.Map<_inputType_, _outputtype_>)
-            return Ok(_context.Customers.ToList().Select(Mapper.Map<Customer, CustomerDto>));
+            var res = _context.Customers
+                .Include(x => x.MembershipType)
+                .ToList()
+                .Select(Mapper.Map<Customer, CustomerDto>);
+            return Ok(res);
         }
 
         // GET /api/customers/1

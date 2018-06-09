@@ -15,11 +15,13 @@ else
 }
 
 
-@using (Html.BeginForm("Save", "Movies", FormMethod.Post))
-{
-    <div class="form-group">
+@*@using (Html.BeginForm("CreateMovie", "Api/Movies", FormMethod.Post))
+
+{*@
+<form id="myForm">
+<div class="form-group">
         @Html.LabelFor(x => x.Movie.Name)
-        @Html.TextBoxFor(x => x.Movie.Name, new { @class = "form-control" })
+        @Html.TextBoxFor(x => x.Movie.Name, new { @class = "form-control", id = "movieName" })
         @Html.ValidationMessageFor(x => x.Movie.Name)
     </div>
     <div class="form-group">
@@ -39,12 +41,60 @@ else
     </div>
 
     @Html.HiddenFor(x => x.Movie.Id)
-    @Html.AntiForgeryToken()
-    <input type="submit" value="Save" class="btn btn-primary" />
-}
+    @*@Html.AntiForgeryToken()*@
+<input type="submit" value="Save" class="btn btn-primary" id="submitBtn"/>
+</form>
+@*}*@
 
 @section scripts
 {
     @Scripts.Render("~/bundles/jqueryval")
+    <script>
+        $(document).ready(function() {
+            //console.log("aaaa");
+            $('#submitBtn').click(function (e) {
+                // !!!!!!!!!!!!!!!!!!!!! TO PREVENT THE SUBMIT BUTTON TO DO ITS DEFAULT ACTION!!!!!!!!!!!!!!!!!!
+                // https://stackoverflow.com/questions/42653380/jquery-ajax-post-request-loads-same-page-with-form-data-added-to-url
+                e.preventDefault();
+
+                //var data_ = JSON.stringify($('#myForm').serialize());
+                var movieName = $('#movieName').val();
+
+                var data_ = JSON.stringify({
+                    "name": movieName,
+                    "releaseDate": "1985-02-19T00:00:00",
+                    "numberInStock": "5",
+                    "genreId": "2"
+                });
+
+               //$.toJSON(data_);
+                //var json_text = JSON.stringify(data_, null, 2);
+                console.log(data_);
+                //debugger;
+                $.ajax({
+                    type: "POST",
+                    url: "/api/movies",
+                    data: data_,
+                    contentType: "application/json",
+                    //success: function(r) {
+                    //    console.log("kész");
+                    //    //window.location.replace("/movies");
+                    //},
+                    complete: function(xhr, textStatus) {
+                        console.log("complete");
+                        window.location.replace("/movies");
+                    } 
+
+                });
+                //window.location.replace("/movies");
+                //.done(function() {
+                // console.log( "done" );
+                //});
+                //console.log("after ajax");
+            });
+            //var data = $('#myForm').serialize();
+        });
+
+    </script>
 }
 

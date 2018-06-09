@@ -28,6 +28,8 @@ namespace Vidly.Dtos
         // Entity framework will recognize this as a FK: !!!!!!!!!!! by its naming based on E.F.'s naming convenction rules
         public byte MembershipTypeId { get; set; }
 
+        public MembershipTypeDto MembershipType { get; set; }
+
         //[Min18YearsIfAMember]
         public DateTime? Birthday { get; set; }
     }

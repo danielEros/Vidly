@@ -69,8 +69,14 @@ namespace Vidly.Controllers
             return Content("year: " + year + " month: " + month);
         }
 
+        //[Authorize(Roles = UserRoles.CanManageMovies)]
         public ActionResult Index()
         {
+            if (User.IsInRole(UserRoles.CanManageMovies))
+            {
+                return View("List");
+            }
+            return View("ReadOnlyList");
             //Movie movies = new Movie { Name = "Shrek!" };
             //List<Movie> movieList = new List<Movie>
             //{
@@ -78,10 +84,10 @@ namespace Vidly.Controllers
             //    new Movie {Id=2, Name = "Gyalog galopp"}
             //};
 
-            List<Movie> movieList = _context.Movies.Include(x => x.Genre).ToList();
+            //List<Movie> movieList = _context.Movies.Include(x => x.Genre).ToList();
 
-            var mvm = new MovieViewModel { Movies = movieList };
-            return View(mvm);
+            //var mvm = new MovieViewModel { Movies = movieList };
+            //return View(mvm);
             //return HttpNotFound();
             //return new EmptyResult();
             //return RedirectToAction("Index", "Home", new {page = 1, sortBy = "name"});
